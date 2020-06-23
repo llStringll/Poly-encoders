@@ -193,7 +193,7 @@ if __name__ == '__main__':
     model, optimizer = amp.initialize(model, optimizer, opt_level=args.fp16_opt_level)
 
   tr_total = int(
-    train_dataset.__len__() / args.train_batch_size / args.gradient_accumulation_steps * args.num_train_epochs) #total steps
+    train_dataset.__len__() / args.train_batch_size / args.gradient_accumulation_steps * args.num_train_epochs)
   print_freq = args.print_freq
   eval_freq = min(len(train_dataloader) // 2, 1000)
   print('Print freq:', print_freq, "Eval freq:", eval_freq)
