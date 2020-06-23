@@ -15,7 +15,9 @@ As default
 - Number of m-query codes for poly-encoder, 16
 - Adam initial eta, 5e-05, warmup steps, 2000
 - Epochs, 3
-
 Can be changed via args to train.py
+
+Results mentioned are on Ubuntu Dialogue Corpus V2.0 (https://arxiv.org/abs/1506.08909), downloaded from (http://cs.mcgill.ca/~jpineau/datasets/ubuntu-corpus-1.0/ubuntu_dialogs.tgz). With BeRT-small-uncased pretrained (https://storage.googleapis.com/bert_models/2020_02_20/uncased_L-4_H-512_A-8.zip)
+
 
 *The project is not complete yet!*
