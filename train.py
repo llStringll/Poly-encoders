@@ -23,7 +23,6 @@ from seq_transform import  SelectionSequentialTransform, SelectionJoinTransform
 from encoder import BertPolyModel
 from torch.nn import CrossEntropyLoss
 
-
 def set_seed(args):
   random.seed(args.seed)
   np.random.seed(args.seed)
