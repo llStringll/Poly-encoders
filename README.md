@@ -20,7 +20,7 @@ Can be changed via args to train.py
 
 
 - Results mentioned are on Ubuntu Dialogue Corpus V2.0 (https://arxiv.org/abs/1506.08909), downloaded from (http://cs.mcgill.ca/~jpineau/datasets/ubuntu-corpus-1.0/ubuntu_dialogs.tgz).
-- With BeRT-small-uncased pretrained (https://storage.googleapis.com/bert_models/2020_02_20/uncased_L-4_H-512_A-8.zip)
+- With BeRT-small-uncased pretrained (from Hugging-Face pretrained models, this repo uses bert base uncased. Or get one from https://github.com/google-research/bert)
 
 
 *The project is not complete yet!*
