@@ -75,10 +75,10 @@ if __name__ == '__main__':
 
   parser.add_argument("--use_pretrain", action="store_true")
 
-  parser.add_argument("--max_contexts_length", default=28, type=int)
-  parser.add_argument("--max_response_length", default=14, type=int)
-  parser.add_argument("--train_batch_size", default=5, type=int, help="Total batch size for training.")
-  parser.add_argument("--eval_batch_size", default=2, type=int, help="Total batch size for eval.")
+  parser.add_argument("--max_contexts_length", default=128, type=int)
+  parser.add_argument("--max_response_length", default=64, type=int)
+  parser.add_argument("--train_batch_size", default=32, type=int, help="Total batch size for training.")
+  parser.add_argument("--eval_batch_size", default=10, type=int, help="Total batch size for eval.")
   parser.add_argument("--print_freq", default=100, type=int, help="Prints every n iterations")
 
   parser.add_argument("--poly_m", default=16, type=int, help="M query codes for poly-encoder, trainable")
