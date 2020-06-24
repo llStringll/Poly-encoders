@@ -15,6 +15,7 @@ from torch.utils.data import Dataset
 
 from transformers import BertModel, BertConfig, BertTokenizer
 from transformers import DistilBertModel, DistilBertConfig, DistilBertTokenizer
+from transformers import CONFIG_NAME
 from transformers.optimization import AdamW, get_linear_schedule_with_warmup
 
 from dataset_prep import SelectionDataset
@@ -22,6 +23,7 @@ from utils import warmup_linear
 from seq_transform import  SelectionSequentialTransform, SelectionJoinTransform
 from encoder import BertPolyModel
 from torch.nn import CrossEntropyLoss
+
 
 def set_seed(args):
   random.seed(args.seed)
@@ -43,7 +45,7 @@ def eval_running_model(dataloader):
 
     with torch.no_grad():
       logits = model(context_token_ids_list_batch, context_segment_ids_list_batch, context_input_masks_list_batch,
-                     response_token_ids_list_batch, response_segment_ids_list_batch, response_input_masks_list_batch)
+                     response_token_ids_list_batch, response_segment_ids_list_batch, response_input_masks_list_batch) # passin w/o labels
       loss = loss_fct(logits * 5, torch.argmax(labels_batch, 1))  # 5 is a coef
 
     eval_hit_times += (logits.argmax(-1) == torch.argmax(labels_batch, 1)).sum().item()
@@ -67,18 +69,15 @@ def eval_running_model(dataloader):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   ## Required parameters
-  # parser.add_argument("--bert_model", default='ckpt/pretrained/distilbert-base-uncased', type=str)
-  # parser.add_argument("--model_type", default='distilbert', type=str)
-  parser.add_argument("--bert_model", default='ckpt/pretrained/bert-small-uncased', type=str)
-  parser.add_argument("--model_type", default='bert', type=str help="Choose from bert or distilbert")
+  parser.add_argument("--model_type", default='bert', type=str, help="Choose from bert or distilbert")
   parser.add_argument("--output_dir", required=True, type=str)
   parser.add_argument("--train_dir", default='data/ubuntu_data', type=str)
 
   parser.add_argument("--use_pretrain", action="store_true")
 
-  parser.add_argument("--max_contexts_length", default=128, type=int)
-  parser.add_argument("--max_response_length", default=64, type=int)
-  parser.add_argument("--train_batch_size", default=32, type=int, help="Total batch size for training.")
+  parser.add_argument("--max_contexts_length", default=28, type=int)
+  parser.add_argument("--max_response_length", default=14, type=int)
+  parser.add_argument("--train_batch_size", default=5, type=int, help="Total batch size for training.")
   parser.add_argument("--eval_batch_size", default=2, type=int, help="Total batch size for eval.")
   parser.add_argument("--print_freq", default=100, type=int, help="Prints every n iterations")
 
@@ -120,7 +119,7 @@ if __name__ == '__main__':
   ConfigClass, TokenizerClass, BertModelClass = MODEL_CLASSES[args.model_type]
 
   # init dataset and bert model
-  tokenizer = TokenizerClass.from_pretrained(os.path.join(args.bert_model, "vocab.txt"), do_lower_case=True)
+  tokenizer = TokenizerClass.from_pretrained(args.model_type+'-base-uncased')
   context_transform = SelectionJoinTransform(tokenizer=tokenizer, max_len=args.max_contexts_length,
                                              max_history=args.max_history)
   response_transform = SelectionSequentialTransform(tokenizer=tokenizer, max_len=args.max_response_length,
@@ -149,24 +148,20 @@ if __name__ == '__main__':
 
   if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
-
-  shutil.copyfile(os.path.join(args.bert_model, 'vocab.txt'), os.path.join(args.output_dir, 'vocab.txt'))
-  shutil.copyfile(os.path.join(args.bert_model, 'config.json'), os.path.join(args.output_dir, 'config.json'))
+    
   log_wf = open(os.path.join(args.output_dir, 'log.txt'), 'a', encoding='utf-8') # for logging
 
   state_save_path = os.path.join(args.output_dir, 'pytorch_model.bin')
+  output_dir = args.output_dir
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
   ################################################################################
   # BERT encoder
-  bert_config = ConfigClass.from_json_file(os.path.join(args.bert_model, 'config.json'))
+  bert_config = ConfigClass()
   if args.use_pretrain:
-    previous_model_file = os.path.join(args.bert_model, "pytorch_model.bin")
-    print('Loading parameters from', previous_model_file)
-    log_wf.write('Loading parameters from %s' % previous_model_file + '\n')
-    model_state_dict = torch.load(previous_model_file, map_location="cpu")
-    bert = BertModelClass.from_pretrained(args.bert_model, state_dict=model_state_dict)
-    del model_state_dict
+    print('Loading parameters from hugging face %s-base-uncased'%args.model_type)
+    log_wf.write('Loading parameters from hugging face %s-base-uncased \n'%args.model_type)
+    bert = BertModelClass.from_pretrained(args.model_type+'-base-uncased')
   else:
     bert = BertModelClass(bert_config)
 
@@ -257,6 +252,9 @@ if __name__ == '__main__':
             print('[Saving at]', state_save_path)
             log_wf.write('[Saving at] %s\n' % state_save_path)
             torch.save(model.state_dict(), state_save_path)
+            output_config_file = os.path.join(output_dir, CONFIG_NAME)
+            model.config.to_json_file(output_config_file)
+            tokenizer.save_pretrained(output_dir)
         log_wf.flush()
         pass
 
@@ -274,5 +272,8 @@ if __name__ == '__main__':
       print('[Saving at]', state_save_path)
       log_wf.write('[Saving at] %s\n' % state_save_path)
       torch.save(model.state_dict(), state_save_path)
+      output_config_file = os.path.join(output_dir, CONFIG_NAME)
+      model.config.to_json_file(output_config_file)
+      tokenizer.save_pretrained(output_dir)
     print(global_step, tr_loss / nb_tr_steps)
     log_wf.write('%d\t%f\n' % (global_step, tr_loss / nb_tr_steps))
