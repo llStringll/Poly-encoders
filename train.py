@@ -79,6 +79,9 @@ if __name__ == '__main__':
   parser.add_argument("--max_response_length", default=64, type=int)
   parser.add_argument("--train_batch_size", default=32, type=int, help="Total batch size for training.")
   parser.add_argument("--eval_batch_size", default=10, type=int, help="Total batch size for eval.")
+   # recall @k/C (k=1, as in encoder.py, picking only the first reponse for every contex
+   #              C=10=eval_batch_size
+   #              each context during eval has to pick k responses from C candidates, so this script would be for recall@1/10)
   parser.add_argument("--print_freq", default=100, type=int, help="Prints every n iterations")
 
   parser.add_argument("--poly_m", default=16, type=int, help="M query codes for poly-encoder, trainable")
