@@ -69,6 +69,9 @@ def eval_running_model(dataloader):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   ## Required parameters
+  # parser.add_argument("--bert_model", default='ckpt/pretrained/distilbert-base-uncased', type=str)
+  # parser.add_argument("--model_type", default='distilbert', type=str)
+  # parser.add_argument("--bert_model", default='ckpt/pretrained/bert-small-uncased', type=str)
   parser.add_argument("--model_type", default='bert', type=str, help="Choose from bert or distilbert")
   parser.add_argument("--output_dir", required=True, type=str)
   parser.add_argument("--train_dir", default='data/ubuntu_data', type=str)
@@ -79,9 +82,6 @@ if __name__ == '__main__':
   parser.add_argument("--max_response_length", default=64, type=int)
   parser.add_argument("--train_batch_size", default=32, type=int, help="Total batch size for training.")
   parser.add_argument("--eval_batch_size", default=10, type=int, help="Total batch size for eval.")
-   # recall @k/C (k=1, as in encoder.py, picking only the first reponse for every contex
-   #              C=10=eval_batch_size
-   #              each context during eval has to pick k responses from C candidates, so this script would be for recall@1/10)
   parser.add_argument("--print_freq", default=100, type=int, help="Prints every n iterations")
 
   parser.add_argument("--poly_m", default=16, type=int, help="M query codes for poly-encoder, trainable")
@@ -151,24 +151,34 @@ if __name__ == '__main__':
 
   if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
-    
+
+  # shutil.copyfile(os.path.join(args.bert_model, 'vocab.txt'), os.path.join(args.output_dir, 'vocab.txt'))
+  # shutil.copyfile(os.path.join(args.bert_model, 'config.json'), os.path.join(args.output_dir, 'config.json'))
   log_wf = open(os.path.join(args.output_dir, 'log.txt'), 'a', encoding='utf-8') # for logging
 
   state_save_path = os.path.join(args.output_dir, 'pytorch_model.bin')
   output_dir = args.output_dir
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  print(device)
 
   ################################################################################
   # BERT encoder
   bert_config = ConfigClass()
   if args.use_pretrain:
+    # previous_model_file = os.path.join(args.bert_model, "bert_model.ckpt.index")
     print('Loading parameters from hugging face %s-base-uncased'%args.model_type)
     log_wf.write('Loading parameters from hugging face %s-base-uncased \n'%args.model_type)
+    # model_state_dict = torch.load(previous_model_file, map_location="cpu")
     bert = BertModelClass.from_pretrained(args.model_type+'-base-uncased')
+    # del model_state_dict
   else:
     bert = BertModelClass(bert_config)
 
   model = BertPolyModel(bert_config, bert=bert, poly_m=args.poly_m)
+
+  if os.path.exists(state_save_path):
+      print ("Found pre-trained poly-encoder checkpoint, recovering from there")
+      model.load_state_dict(torch.load(state_save_path))
   model.to(device)
 
   no_decay = ["bias", "LayerNorm.weight"]
