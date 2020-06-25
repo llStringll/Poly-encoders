@@ -30,7 +30,7 @@ Can be changed via args to train.py
 
 The training was done on Google Colab(GPU) for lack of any other better option. With default parameters as mentioned above
 - training speed 1.77it/s on avg.
-- eval accuracy ___%
-- recall@1/10 ___
+- eval accuracy 70.58%
+- recall@1/10 0.7465
 
 *recall@k/C is measured as the log softmax probability assigned  by the network to the correct labelled candidate for a given context*
