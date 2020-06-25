@@ -13,8 +13,8 @@ Paper mentions they pre-trained BeRT on tasks that are more similar to the downs
 As default
 - Data path - ./data/
 - Pretrained BeRT path - ./ckpt/pretrained/
-- Max content length, 128
-- Max response length, 64
+- Max content length, 100
+- Max response length, 50
 - Batch size, 32
 - Number of m-query codes for poly-encoder, 16
 - Adam initial eta, 5e-05, warmup steps, 2000
