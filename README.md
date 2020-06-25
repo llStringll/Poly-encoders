@@ -15,7 +15,8 @@ As default
 - Pretrained BeRT path - ./ckpt/pretrained/
 - Max content length, 100
 - Max response length, 50
-- Batch size, 32
+- Training Batch size, 32
+- Eval Batch size, 10, measuring Recall@1/10
 - Number of m-query codes for poly-encoder, 16
 - Adam initial eta, 5e-05, warmup steps, 2000
 - Epochs, 3
@@ -27,4 +28,9 @@ Can be changed via args to train.py
 - With BeRT-small-uncased pretrained (from Hugging-Face pretrained models, this repo uses bert base uncased. Or get one from https://github.com/google-research/bert)
 
 
-*The project is not complete yet!*
+The training was done on Google Colab(GPU) for lack of any other better option. With default parameters as mentioned above
+- training speed 1.77it/s on avg.
+- eval accuracy ___%
+- recall@1/10 ___
+
+*recall@k/C is measured as the log softmax probability assigned  by the network to the correct labelled candidate for a given context
