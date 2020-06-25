@@ -36,7 +36,7 @@ def set_seed(args):
 def eval_running_model(dataloader):
   loss_fct = CrossEntropyLoss()
   model.eval()
-  eval_loss, eval_hit_times = 0, 0
+  eval_loss, eval_hit_times, recall = 0, 0, 0
   nb_eval_steps, nb_eval_examples = 0, 0
   for step, batch in enumerate(dataloader, start=1):
     batch = tuple(t.to(device) for t in batch)
@@ -50,16 +50,18 @@ def eval_running_model(dataloader):
 
     eval_hit_times += (logits.argmax(-1) == torch.argmax(labels_batch, 1)).sum().item()
     eval_loss += loss.item()
+    recall += logits.gather(-1,torch.argmax(labels_batch, 1).view(-1,1)).sum().item()
 
     nb_eval_examples += labels_batch.size(0)
     nb_eval_steps += 1
   eval_loss = eval_loss / nb_eval_steps
   eval_accuracy = eval_hit_times / nb_eval_examples
+  recall_kC = recall / nb_eval_examples
   result = {
     'train_loss': tr_loss / nb_tr_steps,
     'eval_loss': eval_loss,
     'eval_accuracy': eval_accuracy,
-
+    'recall_kC':recall_kC,
     'epoch': epoch,
     'global_step': global_step,
   }
@@ -68,20 +70,16 @@ def eval_running_model(dataloader):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  ## Required parameters
-  # parser.add_argument("--bert_model", default='ckpt/pretrained/distilbert-base-uncased', type=str)
-  # parser.add_argument("--model_type", default='distilbert', type=str)
-  # parser.add_argument("--bert_model", default='ckpt/pretrained/bert-small-uncased', type=str)
   parser.add_argument("--model_type", default='bert', type=str, help="Choose from bert or distilbert")
   parser.add_argument("--output_dir", required=True, type=str)
   parser.add_argument("--train_dir", default='data/ubuntu_data', type=str)
 
   parser.add_argument("--use_pretrain", action="store_true")
 
-  parser.add_argument("--max_contexts_length", default=128, type=int)
-  parser.add_argument("--max_response_length", default=64, type=int)
-  parser.add_argument("--train_batch_size", default=32, type=int, help="Total batch size for training.")
-  parser.add_argument("--eval_batch_size", default=10, type=int, help="Total batch size for eval.")
+  parser.add_argument("--max_contexts_length", default=28, type=int)
+  parser.add_argument("--max_response_length", default=14, type=int)
+  parser.add_argument("--train_batch_size", default=5, type=int, help="Total batch size for training.")
+  parser.add_argument("--eval_batch_size", default=2, type=int, help="Total batch size for eval.")
   parser.add_argument("--print_freq", default=100, type=int, help="Prints every n iterations")
 
   parser.add_argument("--poly_m", default=16, type=int, help="M query codes for poly-encoder, trainable")
