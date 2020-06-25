@@ -33,4 +33,4 @@ The training was done on Google Colab(GPU) for lack of any other better option. 
 - eval accuracy ___%
 - recall@1/10 ___
 
-*recall@k/C is measured as the log softmax probability assigned  by the network to the correct labelled candidate for a given context
+*recall@k/C is measured as the log softmax probability assigned  by the network to the correct labelled candidate for a given context*
