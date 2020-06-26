@@ -36,7 +36,7 @@ def set_seed(args):
 def eval_running_model(dataloader):
   loss_fct = CrossEntropyLoss()
   model.eval()
-  eval_loss, eval_hit_times, recall = 0, 0, 0
+  eval_loss, eval_hit_times, cossim = 0, 0, 0
   nb_eval_steps, nb_eval_examples = 0, 0
   for step, batch in enumerate(dataloader, start=1):
     batch = tuple(t.to(device) for t in batch)
@@ -50,18 +50,18 @@ def eval_running_model(dataloader):
 
     eval_hit_times += (logits.argmax(-1) == torch.argmax(labels_batch, 1)).sum().item()
     eval_loss += loss.item()
-    recall += logits.gather(-1,torch.argmax(labels_batch, 1).view(-1,1)).sum().item()
+    cossim += logits.gather(-1,torch.argmax(labels_batch, 1).view(-1,1)).sum().item()
 
     nb_eval_examples += labels_batch.size(0)
     nb_eval_steps += 1
   eval_loss = eval_loss / nb_eval_steps
   eval_accuracy = eval_hit_times / nb_eval_examples
-  recall_kC = recall / nb_eval_examples
+  cossim_avg = cossim / nb_eval_examples
   result = {
     'train_loss': tr_loss / nb_tr_steps,
     'eval_loss': eval_loss,
     'eval_accuracy': eval_accuracy,
-    'recall_kC':recall_kC,
+    'avg_cossim':cossim_avg,
     'epoch': epoch,
     'global_step': global_step,
   }
