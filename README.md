@@ -16,7 +16,7 @@ As default
 - Max content length, 100
 - Max response length, 50
 - Training Batch size, 32
-- Eval Batch size, 10, measuring Recall@1/10
+- Eval Batch size, 10
 - Number of m-query codes for poly-encoder, 16
 - Adam initial eta, 5e-05, warmup steps, 2000
 - Epochs, 3
@@ -30,7 +30,5 @@ Can be changed via args to train.py
 
 The training was done on Google Colab(GPU) for lack of any other better option. With default parameters as mentioned above
 - training speed 1.77it/s on avg.
-- eval accuracy 70.78%
-- recall@1/10 0.7165
-
-*recall@k/C is measured as the log softmax probability assigned  by the network to the correct labelled candidate for a given context*
+- eval accuracy 70.78%, so, recall@1/10 0.7078
+- avg. cosine similarity b/w context and its correct response 0.7165
