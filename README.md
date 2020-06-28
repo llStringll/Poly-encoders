@@ -12,7 +12,6 @@ Paper mentions they pre-trained BeRT on tasks that are more similar to the downs
 
 As default
 - Data path - ./data/
-- Pretrained BeRT path - ./ckpt/pretrained/
 - Max content length, 100
 - Max response length, 50
 - Training Batch size, 32
@@ -28,7 +27,12 @@ Can be changed via args to train.py
 - With BeRT-small-uncased pretrained (from Hugging-Face pretrained models, this repo uses bert base uncased. Or get one from https://github.com/google-research/bert)
 
 
-The training was done on Google Colab(GPU) for lack of any other better option. With default parameters as mentioned above
+The training was done on Google Colab(GPU) for lack of any other better option. With default parameters as mentioned above:
 - training speed 1.77it/s on avg.
 - eval accuracy 70.78%, so, recall@1/10 0.7078
 - avg. cosine similarity b/w context and its correct response 0.7165
+
+The entire experiment was repreated with same hyperparameters and arguements with GPT2 from HuggingFace at its core instead of Bert-base:
+- training speed 2.01it/s on avg.
+- eval accuracy 72.3%, so, recall@1/10 0.723
+- avg. cosine similarity b/w context and its correct response 0.7476
