@@ -1,6 +1,8 @@
 # Poly-encoders
 Poly-encoder architecture and pre-training pipeline implementation (pytorch) [Poly-encoders: architectures and pre-training
-strategies for fast and accurate multi-sentence scoring](https://arxiv.org/pdf/1905.01969.pdf)
+strategies for fast and accurate multi-sentence scoring](https://arxiv.org/pdf/1905.01969.pdf).
+
+This repo has two implementations, PolyEncoderBert fine tunes a bert-base, and PolyEncoderGPT2 fine tunes a GPT2 small.
 
 This encoder inherits [HuggingFace's BeRT](https://huggingface.co/transformers/model_doc/bert.html) class(pre-trained) and [HuggingFace's GPT2](https://huggingface.co/transformers/model_doc/gpt2.html) class(pre-trained), and fine tunes on it, with two extra attention layers on the output, one with 'm' trainable vectors as queries(context codes, as referred in  the paper), and the other with the aggregated response candidate output embedding as the query. The aggregation is also done using a attention on candidate output with a single trainable query(hence total m+1 trainable queries apart from the core bert or core gpt2). The context encoder and the candidate encoder here, can be either distillBeRT or BeRT or GPT2. Output of this encoder is just log-softmax of the score of similarity b/w context and candidate embedding log(softmax((dot product))). This score drives towards 0 for correct response and towards -inf for negative candidates(picked from candidate responses of others entries in the batch). All repsonses in a batch attend to all context vectors of that batch, the ones with label==1 are considered positive candidates, rest are considered negative candidates, hence allowing re-use of the computed candidate embeddings for all context vectors in a given batch.
 
