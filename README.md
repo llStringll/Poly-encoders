@@ -2,7 +2,7 @@
 Poly-encoder architecture and pre-training pipeline implementation (pytorch) [Poly-encoders: architectures and pre-training
 strategies for fast and accurate multi-sentence scoring](https://arxiv.org/pdf/1905.01969.pdf)
 
-This encoder inherits [HuggingFace's BeRT](https://huggingface.co/transformers/model_doc/bert.html) class(pre-trained), and fine tunes on it, with two extra attention layers on the output, one with 'm' trainable queries(context codes, as referred in  the paper), and the other with the aggregated candidate output embedding as the query. The context encoder and the candidate encoder here, can be either distillBeRT or BeRT. Output of this encoder is just log-softmax of the score of similarity b/w context and candidate embedding log(softmax((dot product))). This score drives towards 0 for correct response and towards -inf for negative candidates(picked from candidate responses of others entries in the batch). All repsonses in a batch attend to all context vectors of that batch, the ones with label==1 are considered positive candidates, rest are considered negative candidates, hence allowing re-use of the computed candidate embeddings for all context vectors in a given batch.
+This encoder inherits [HuggingFace's BeRT](https://huggingface.co/transformers/model_doc/bert.html) class(pre-trained) and [HuggingFace's GPT2](https://huggingface.co/transformers/model_doc/gpt2.html) class(pre-trained), and fine tunes on it, with two extra attention layers on the output, one with 'm' trainable vectors as queries(context codes, as referred in  the paper), and the other with the aggregated response candidate output embedding as the query. The aggregation is also done using a attention on candidate output with a single trainable query(hence total m+1 trainable queries apart from the core bert or core gpt2). The context encoder and the candidate encoder here, can be either distillBeRT or BeRT or GPT2. Output of this encoder is just log-softmax of the score of similarity b/w context and candidate embedding log(softmax((dot product))). This score drives towards 0 for correct response and towards -inf for negative candidates(picked from candidate responses of others entries in the batch). All repsonses in a batch attend to all context vectors of that batch, the ones with label==1 are considered positive candidates, rest are considered negative candidates, hence allowing re-use of the computed candidate embeddings for all context vectors in a given batch.
 
 During training, the encoder.py returns masked log-softmax of the dot product b/w candidate and transformed context vectors. The mask, zeros out the log-softmax of negativr candidates(which should be -inf in ideal case), so output of this would be log-softmax of positive candidates for every context in the batch.
 
@@ -27,12 +27,13 @@ Can be changed via args to train.py
 - With BeRT-small-uncased pretrained (from Hugging-Face pretrained models, this repo uses bert base uncased. Or get one from https://github.com/google-research/bert)
 
 
-The training was done on Google Colab(GPU) for lack of any other better option. With default parameters as mentioned above:
+The training was done on Google Colab(GPU) for lack of any other better option.
+With default parameters as mentioned above using BeRT base:
 - training speed 1.77it/s on avg.
 - eval accuracy 70.78%, so, recall@1/10 0.7078
 - avg. cosine similarity b/w context and its correct response 0.7165
 
-The entire experiment was repreated with same hyperparameters and arguements with GPT2 from HuggingFace at its core instead of Bert-base:
+With default parameters as mentioned above using GPT2 small:
 - training speed 2.01it/s on avg.
 - eval accuracy 72.3%, so, recall@1/10 0.723
 - avg. cosine similarity b/w context and its correct response 0.7476
