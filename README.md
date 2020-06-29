@@ -31,11 +31,30 @@ Can be changed via args to train.py
 
 The training was done on Google Colab(GPU) for lack of any other better option.
 With default parameters as mentioned above using BeRT base:
-- training speed 1.77it/s on avg.
-- eval accuracy 70.78%, so, recall@1/10 0.7078
-- avg. cosine similarity b/w context and its correct response 0.7165
+- training speed 1.99it/s on avg.
+- eval accuracy 72.16 %, so, recall@1/10 0.721
+- avg. cosine similarity b/w context and its correct response 0.7488
 
 With default parameters as mentioned above using GPT2 small:
 - training speed 2.01it/s on avg.
-- eval accuracy 72.3%, so, recall@1/10 0.723
+- eval accuracy 71.3%, so, recall@1/10 0.713
 - avg. cosine similarity b/w context and its correct response 0.7476
+
+Both models converge to almost similar evaluation loss after 3 epochs, but, BeRT core converges faster.
+
+Manual response selection examples (output is dot product of normalised context and response vectors, no logistic transformation applied on it):
+For Bert core Poly-encoder
+- Context = "where is canada"
+  Response options = "rick and morty maybe", "what are the odds bro", "i am here", "canada is in north america", "fruits are still very nice"
+  Dot product output => 0.6022, 0.5173, 0.6594, 0.9246, 0.6125
+- Context = "hi, how are you"
+  Response options = "all good", "what are the odds", "i am bad", "my name is slender man", "i am fine thank you"
+  Dot product output => 0.6305, 0.5168, 0.6842, 0.8401, 0.6409
+  
+For GPT2 core Poly-encoder
+- Context = "where is canada"
+  Response options = "rick and morty maybe", "what are the odds bro", "i am here", "canada is in north america", "fruits are still very nice"
+  Dot product output => 0.7942, 0.7532, 0.8633, 0.8307, 0.6244
+- Context = "hi, how are you"
+  Response options = "all good", "what are the odds", "i am bad", "my name is slender man", "i am fine thank you"
+  Dot product output => 0.6759, 0.7153, 0.8217, 0.8088, 0.7300 
