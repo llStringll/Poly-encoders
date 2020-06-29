@@ -43,6 +43,7 @@ With default parameters as mentioned above using GPT2 small:
 Both models converge to almost similar evaluation loss after 3 epochs, but, BeRT core converges faster.
 
 Manual response selection examples (output is dot product of normalised context and response vectors, no logistic transformation applied on it):
+
 For Bert core Poly-encoder
 - Context = "where is canada"
   Response options = "rick and morty maybe", "what are the odds bro", "i am here", "canada is in north america", "fruits are still very nice"
